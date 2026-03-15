@@ -434,6 +434,29 @@ if page == "🎬 Movie Recommender":
                         if details.get("overview"):
                             st.caption(details["overview"])
 
+                    # IMDB sentiment for this recommended movie
+                    imdb = sentiment_analysis.analyze_imdb(movie["title"])
+                    if imdb and imdb["total"] > 0:
+                        st.markdown(f"""
+                            <div class="imdb-stats">
+                                <div class="stat-row">
+                                    <span class="stat-label">Positive</span>
+                                    <span class="stat-pos">{imdb['positive']}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Negative</span>
+                                    <span class="stat-neg">{imdb['negative']}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Neutral</span>
+                                    <span class="stat-neu">{imdb['neutral']}</span>
+                                </div>
+                                <div class="imdb-total">📊 {imdb['total']} reviews</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.caption("No IMDB reviews found")
+
 
 # ══════════════════════════════════════════════════════════════
 #  🎵  SONG RECOMMENDER
