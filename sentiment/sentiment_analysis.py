@@ -23,7 +23,8 @@ def _load_imdb_reviews():
     """Load the IMDB reviews dataset (cached)."""
     try:
         return pd.read_csv(IMDB_CSV)
-    except Exception:
+    except Exception as e:
+        st.error(f"Error loading IMDB dataset: {e}")
         return None
 
 

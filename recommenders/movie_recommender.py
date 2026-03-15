@@ -25,34 +25,20 @@ def _load_movies():
     return movies_df
 
 
-@st.cache_data(show_spinner="Computing similarity matrix (first run)...")
-def _load_similarity():
-    """Load the precomputed cosine-similarity matrix, or compute it if missing."""
-    # 1. Try to load it from the file (if the user has it locally)
-    if os.path.exists(SIMILARITY_PKL):
-        try:
-            with open(SIMILARITY_PKL, "rb") as f:
-                return pickle.load(f)
-        except Exception as e:
-            st.error(f"Failed to load similarity.pkl: {e}")
-
-    # 2. If it's missing (e.g. cloned from GitHub), compute it on the fly!
-    # This only takes ~1.5 seconds and caches in memory.
+@st.cache_resource(show_spinner="Preparing engine...")
+def _load_vectors():
+    """Load and cache the sparse TF-IDF document vectors."""
     movies_df = _load_movies()
-    
     if "tags" not in movies_df.columns:
         st.error("Missing 'tags' column in movies_list.pkl. Cannot compute similarity.")
-        return []
+        return None
 
     from sklearn.feature_extraction.text import CountVectorizer
-    from sklearn.metrics.pairwise import cosine_similarity
 
     # Recreate the exact vectorization used in the original capstone project
     cv = CountVectorizer(max_features=5000, stop_words="english")
     vectors = cv.fit_transform(movies_df["tags"].values.astype("U"))
-    similarity_matrix = cosine_similarity(vectors)
-
-    return similarity_matrix
+    return vectors
 
 
 def get_movie_list() -> list[str]:
@@ -67,20 +53,12 @@ def get_movie_list() -> list[str]:
 def recommend(movie_title: str) -> list[dict]:
     """
     Recommend the top 5 movies most similar to *movie_title*.
-
-    Parameters
-    ----------
-    movie_title : str
-        Exact title string (as provided by the dropdown).
-
-    Returns
-    -------
-    list[dict]
-        Each dict contains ``id`` (TMDB movie ID) and ``title``.
-        Returns an empty list if the title is not found.
     """
     movies_df = _load_movies()
-    similarity = _load_similarity()
+    vectors = _load_vectors()
+
+    if vectors is None:
+        return []
 
     # Locate the movie index
     matches = movies_df[movies_df["title"] == movie_title]
@@ -89,9 +67,17 @@ def recommend(movie_title: str) -> list[dict]:
 
     idx = matches.index[0]
 
+    # Calculate cosine similarity ONLY for the requested movie vs all others.
+    # This prevents creating an 800MB dense matrix in memory (Streamlit Cloud limit).
+    from sklearn.metrics.pairwise import cosine_similarity
+    
+    selected_vector = vectors[idx]
+    # returns shape (1, 10000), flatten to 1D
+    sim_scores_array = cosine_similarity(selected_vector, vectors).flatten()
+
     # Get pairwise similarity scores, sort descending, skip self (index 0)
     sim_scores = sorted(
-        enumerate(similarity[idx]),
+        enumerate(sim_scores_array),
         key=lambda x: x[1],
         reverse=True,
     )[1:6]  # Top 5
