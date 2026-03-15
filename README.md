@@ -67,28 +67,27 @@ The application distances itself from standard data-science wrappers by implemen
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 RecommendAI/
 │
 ├── app.py
+│
 ├── recommenders/
-│   ├── movie_recommender.py
-│   ├── song_recommender.py
-│   ├── book_recommender.py
+│ ├── movie_recommender.py
+│ ├── song_recommender.py
+│ ├── book_recommender.py
 │
 ├── nlp/
-│   └── sentiment_analysis.py
+│ └── sentiment_analysis.py
 │
 ├── utils/
-│   └── album_art_fetcher.py
+│ └── album_art_fetcher.py
 │
 ├── data/
 │
 ├── requirements.txt
 └── README.md
-
----
 
 ## 🚧 Challenges Faced & Overcome
 
