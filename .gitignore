@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────
+# Multi-Recommender AI System — .gitignore
+# ─────────────────────────────────────────────
+
+# ── Virtual Environment ──
+.venv/
+venv/
+env/
+
+# ── Python Cache ──
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ── Large Data Files (too big for GitHub > 100MB) ──
+data/similarity.pkl
+
+# ── Old Project (not needed in clean repo) ──
+capstone_model/
+
+# ── Secrets (NEVER commit API keys) ──
+.streamlit/secrets.toml
+
+# ── IDE / OS ──
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
