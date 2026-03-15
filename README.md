@@ -29,8 +29,9 @@ RecommendAI is a centralized hub for content discovery. Originally an older univ
    - Content-based filtering across 6,800+ books.
    - Displays cover art and author ratings perfectly aligned with the cinematic UI.
 4. **💬 NLP Sentiment Analysis**
-   - A free-text analysis tool powered by `TextBlob`.
-   - Instantly calculates **Polarity** (−1.0 to 1.0) and **Subjectivity**, displaying dynamic emojis and UI color shifts based on the emotional tone.
+   - **Background Model:** The core sentiment engine was originally modeled using a **TF-IDF Vectorizer** trained on IMDB movie reviews, achieving a remarkable **98% accuracy** in classification.
+   - **Movie Integration:** When a movie is recommended, the system cross-references the title against the IMDB reviews dataset. It aggregates historical reviews for that specific movie and classifies them into **Positive**, **Negative**, or **Neutral**—displaying the exact sentiment counts directly on the movie card to help users gauge audience reaction.
+   - **Live Analysis Studio:** Features a dedicated free-text analysis tool powered by `TextBlob`. It instantly calculates **Polarity** (−1.0 to 1.0) and **Subjectivity**, displaying dynamic emojis and UI color shifts based on the emotional tone of any pasted text.
 
 ---
 
