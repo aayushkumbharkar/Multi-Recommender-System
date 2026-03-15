@@ -25,11 +25,33 @@ def _load_movies():
     return movies_df
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner="Computing similarity matrix (first run)...")
 def _load_similarity():
-    """Load the precomputed cosine-similarity matrix."""
-    with open(SIMILARITY_PKL, "rb") as f:
-        similarity_matrix = pickle.load(f)
+    """Load the precomputed cosine-similarity matrix, or compute it if missing."""
+    # 1. Try to load it from the file (if the user has it locally)
+    if os.path.exists(SIMILARITY_PKL):
+        try:
+            with open(SIMILARITY_PKL, "rb") as f:
+                return pickle.load(f)
+        except Exception as e:
+            st.error(f"Failed to load similarity.pkl: {e}")
+
+    # 2. If it's missing (e.g. cloned from GitHub), compute it on the fly!
+    # This only takes ~1.5 seconds and caches in memory.
+    movies_df = _load_movies()
+    
+    if "tags" not in movies_df.columns:
+        st.error("Missing 'tags' column in movies_list.pkl. Cannot compute similarity.")
+        return []
+
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+
+    # Recreate the exact vectorization used in the original capstone project
+    cv = CountVectorizer(max_features=5000, stop_words="english")
+    vectors = cv.fit_transform(movies_df["tags"].values.astype("U"))
+    similarity_matrix = cosine_similarity(vectors)
+
     return similarity_matrix
 
 
